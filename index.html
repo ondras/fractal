@@ -36,15 +36,6 @@
 	
 	<fieldset>
 		<legend>Other</legend>
-		Width: <input id="width" type="text" size="3" value="400">
-		Height: <input id="height" type="text" size="3" value="300">
-
-		MinX: <input id="x_min" type="text" size="3" value="-2">
-		MaxX: <input id="x_max" type="text" size="3" value="2">
-
-		MinY: <input id="y_min" type="text" size="3" value="-1.5">
-		MaxY: <input id="y_max" type="text" size="3" value="1.5">
-		
 		<label>Use web workers:<input type="checkbox" id="threads" checked="checked" /></label>
 
 		<input type="button" onclick="redraw()" value="Redraw" />
@@ -57,17 +48,12 @@
 			OZ.$("threads").disabled = true;
 		}
 	
+		var options = {};
+
 		function redraw() {
-			var options = {};
 			options.mode = parseInt(OZ.$("mode").value);
 			options.c = [parseFloat(OZ.$("c_real").value), parseFloat(OZ.$("c_imag").value)];
 			options.formula = parseInt(OZ.$("formula").value)
-			
-			options.width = parseInt(OZ.$("width").value);
-			options.height = parseInt(OZ.$("height").value);
-			
-			options.rangeX = [parseFloat(OZ.$("x_min").value), parseFloat(OZ.$("x_max").value)];
-			options.rangeY = [parseFloat(OZ.$("y_min").value), parseFloat(OZ.$("y_max").value)];
 			
 			options.threads = OZ.$("threads").checked;
 			
@@ -96,11 +82,8 @@
 			dx *= multi;
 			dy *= multi;
 
-			OZ.$("x_min").value = x-dx/2;
-			OZ.$("x_max").value = x+dx/2;
-			OZ.$("y_min").value = y-dy/2;
-			OZ.$("y_max").value = y+dy/2;
-			
+			options.rangeX = [x-dx/2, x+dx/2];
+			options.rangeY = [y-dy/2, y+dy/2];
 			redraw();
 		}
 

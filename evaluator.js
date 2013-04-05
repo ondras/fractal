@@ -7,6 +7,7 @@ Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
 	
 	this._options = options;
 	this._iterate = Formula.formulas[this._options.formula];
+	var method = this._iterate;
 
 	var num = [0, 0];
 	var color = [0, 0, 0];
@@ -22,10 +23,7 @@ Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
 					num[0] = xvals[i];
 					num[1] = yvals[j];
 					
-					this._computeColor(num, color);
-					result.push(color[0]);
-					result.push(color[1]);
-					result.push(color[2]);
+					this._computeColor(method, num, result);
 				}
 			}
 		break;
@@ -38,10 +36,7 @@ Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
 					c[0] = xvals[i];
 					c[1] = yvals[j];
 					
-					this._computeColor(num, color);
-					result.push(color[0]);
-					result.push(color[1]);
-					result.push(color[2]);
+					this._computeColor(method, num, result);
 				}
 			}
 		break;
@@ -50,39 +45,29 @@ Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
 	this._done(result);
 }
 
-Evaluator.prototype._computeColor = function(num, color) {
-	var it = -1;
-	var t = this._options.threshold;
-	var max = this._options.maxIterations;
+Evaluator.prototype._computeColor = function(method, num, result) {
+	var t = this._options.threshold*this._options.threshold;
+	var i = this._options.maxIterations;
+	var c = this._options.c;
+//	var method = this._iterate;  
 
-	for (var i=0;i<max;i++) {
-		this._iterate(num);
-		if (num[0]*num[0]+num[1]*num[1] > t*t) {
-			it = i;
-			break;
-		}
+	while (num[0]*num[0]+num[1]*num[1] < t && i--) {
+		this._iterate(num, c);
 	}
 	
-	if (it > -1) { /* outside */
-		/* A */
-		// var ratio = (it+1) / max;
-		/**/
-		
-		/* B */
-		var val = it - Math.log(
+	if (i > 0) { /* outside */
+		i = this._options.maxIterations - i;
+		var val = i - Math.log(
 			Math.log(
 				num[0]*num[0]+num[1]*num[1]
 			)/(2*Math.LN2)
 		)/Math.LN2;
-		ratio = (val+this._options.threshold)/max;
-		/**/
+		ratio = (val+this._options.threshold)/this._options.maxIterations;
 		
 		ratio = Math.pow(ratio, 0.4); 
 		var blue = Math.round(255 * ratio);
 		
-		color[0] = 0;
-		color[1] = 0;
-		color[2] = blue;
+		result.push(0, 0, blue);
 	} else { /* inside */
 		
 		var ratio1 = Math.abs(num[0])/t;
@@ -94,18 +79,6 @@ Evaluator.prototype._computeColor = function(num, color) {
 		var red = Math.round(255 * ratio1);
 		var green = Math.round(255 * ratio2);
 
-		color[0] = red;
-		color[1] = green;
-		color[2] = 0;
-
-/*
-		var r = Math.sqrt(num[0]*num[0]+num[1]*num[1]);
-		var ang = (Math.atan2(num[1], num[0]) + Math.PI) / (2*Math.PI) * 360;
-
-		var rgb = hsv2rgb(ang, 1, r);
-		color[0] = Math.round(255*rgb[0]);
-		color[1] = Math.round(255*rgb[1]);
-		color[2] = Math.round(255*rgb[2]);
-*/
+		result.push(red, green, 0);
 	}
 }

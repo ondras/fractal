@@ -4,13 +4,13 @@ Fractal.prototype.init = function(container, options) {
 	this._options = {
 		c: [-0.8, 0.156],
 		threshold: 2,
-		maxIterations: 60,
+		maxIterations: 256,
 		mode: Formula.MANDELBROT,
 		formula: Formula.SQUARE,
-		width: 400,
-		height: 300,
-		rangeX: [-2.0, 2.0],
-		rangeY: [-1.5, 1.5],
+		width: 800,
+		height: 600,
+		rangeX: [-1.5, 1.5],
+		rangeY: [-1, 1],
 		threads: true
 	}
 	
@@ -91,20 +91,3 @@ Fractal.prototype.getElement = function() {
 Fractal.prototype.getOptions = function() {
 	return this._options;
 }
-
-function hsv2rgb(h,s,v) {
-	var hi = Math.floor(h/60) % 6;
-	var f = h/60 - hi;
-	var p = v * (1 - s);
-	var q = v * (1 - f*s);
-	var t = v * (1 - (1 - f)*s);
-	switch (hi) {
-		case 0: return [v,t,p]; break;
-		case 1: return [q,v,p]; break;
-		case 2: return [p,v,t]; break;
-		case 3: return [p,q,v]; break;
-		case 4: return [t,p,v]; break;
-		case 5: return [v,p,q]; break;
-	}
-}
-
