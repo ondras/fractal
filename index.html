@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title></title>
+	<script type="text/javascript" src="oz.js"></script>
+	<script type="text/javascript" src="canvas.js"></script>
+	<script type="text/javascript" src="formula.js"></script>
+	<script type="text/javascript" src="fractal.js"></script>
+	<script type="text/javascript" src="evaluator.js"></script>
+</head>
+
+<body>
+	<h1>JSFE - JavaScript Fractal Explorer</h1>
+	<p>&copy; 2010 Ondrej Zara, optimizations by Balazs Kutil</p>
+	<p id="container">
+		<canvas id="canvas" width="400" height="300">...</canvas>
+	</p>
+	
+	<fieldset>
+		<legend>Math</legend>
+		Mode: <select id="mode">
+			<option selected="selected" value="0">Julia</option>
+			<option value="1">Mandelbrot</option>
+		</select>
+		Re(c): <input id="c_real" type="text" size="3" value="-0.8" />
+		Im(c): <input id="c_imag" type="text" size="3" value="0.156" />
+		Formula: <select id="formula">
+			<option selected="selected" value="0">z = z^2 + c</option>
+			<option value="1">z = z^3 + c</option>
+			<option value="2">z = z^4 + c</option>
+			<option value="3">z = conj(z)^2 + c</option>
+			<option value="4">burning ship</option>
+		</select>
+		<input type="button" onclick="redraw()" value="Redraw" />
+	</fieldset>
+	
+	<fieldset>
+		<legend>Other</legend>
+		Width: <input id="width" type="text" size="3" value="400">
+		Height: <input id="height" type="text" size="3" value="300">
+
+		MinX: <input id="x_min" type="text" size="3" value="-2">
+		MaxX: <input id="x_max" type="text" size="3" value="2">
+
+		MinY: <input id="y_min" type="text" size="3" value="-1.5">
+		MaxY: <input id="y_max" type="text" size="3" value="1.5">
+		
+		<label>Use web workers:<input type="checkbox" id="threads" checked="checked" /></label>
+
+		<input type="button" onclick="redraw()" value="Redraw" />
+	</fieldset>
+
+	<script type="text/javascript">
+		var f = null;
+		if (!window.Worker) {
+			OZ.$("threads").checked = false;
+			OZ.$("threads").disabled = true;
+		}
+	
+		function redraw() {
+			var options = {};
+			options.mode = parseInt(OZ.$("mode").value);
+			options.c = [parseFloat(OZ.$("c_real").value), parseFloat(OZ.$("c_imag").value)];
+			options.formula = parseInt(OZ.$("formula").value)
+			
+			options.width = parseInt(OZ.$("width").value);
+			options.height = parseInt(OZ.$("height").value);
+			
+			options.rangeX = [parseFloat(OZ.$("x_min").value), parseFloat(OZ.$("x_max").value)];
+			options.rangeY = [parseFloat(OZ.$("y_min").value), parseFloat(OZ.$("y_max").value)];
+			
+			options.threads = OZ.$("threads").checked;
+			
+			f = new Fractal(OZ.$("container"), options);
+			var canvas = f.getElement();
+			OZ.Event.add(canvas, "contextmenu", OZ.Event.prevent);
+			OZ.Event.add(canvas, "mouseup", click);
+		}
+		
+		function click(e) {
+			var pos = OZ.DOM.pos(f.getElement());
+			var x = e.clientX - pos[0];
+			var y = e.clientY - pos[1];
+			
+			var o = f.getOptions();
+			x /= o.width;
+			y /= o.height;
+			
+			var dx = o.rangeX[1]-o.rangeX[0];
+			var dy = o.rangeY[1]-o.rangeY[0];
+			
+			x = o.rangeX[0] + dx*x;
+			y = o.rangeY[0] + dy*y;
+			
+			var multi = (e.button ? 2 : 0.5);
+			dx *= multi;
+			dy *= multi;
+
+			OZ.$("x_min").value = x-dx/2;
+			OZ.$("x_max").value = x+dx/2;
+			OZ.$("y_min").value = y-dy/2;
+			OZ.$("y_max").value = y+dy/2;
+			
+			redraw();
+		}
+
+		redraw();
+	</script>
+</body>
+</html>
