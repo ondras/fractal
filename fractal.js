@@ -4,7 +4,7 @@ Fractal.prototype.init = function(container, options) {
 	this._options = {
 		c: [-0.8, 0.156],
 		threshold: 2,
-		maxIterations: 200,
+		maxIterations: 250,
 		mode: Formula.MANDELBROT,
 		formula: Formula.SQUARE,
 		width: 750,
@@ -42,7 +42,7 @@ Fractal.prototype.draw = function() {
 	for (var i=0;i<width;i++) { xvals.push(minX + i*dx/width); }
 	for (var j=0;j<height;j++) { yvals.push(minY + j*dy/height); }
 	
-	var evcount = 16;
+	var evcount = 32;
 	this._threads = evcount;
 	
 	for (var i=0;i<evcount;i++) {

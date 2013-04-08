@@ -72,8 +72,8 @@ Evaluator.prototype._computeColor = function(method, num, result, index) {
 		var ratio1 = Math.abs(num[0])/t;
 		var ratio2 = Math.abs(num[1])/t;
 		
-		ratio1 = Math.pow(ratio1, 0.3);
-		ratio2 = Math.pow(ratio2, 0.3);
+		ratio1 = Math.pow(ratio1, 0.2);
+		ratio2 = Math.pow(ratio2, 0.2);
 		
 		var red = Math.round(255 * ratio1);
 		var green = Math.round(255 * ratio2);

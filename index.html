@@ -2,10 +2,16 @@
 <html>
 <head>
 	<meta charset="utf-8" />
+	<link href="http://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css" />
 	<title>Web Worker Fractals</title>
 	<style>
-		body { text-align: center; background-color:#000; color:#ccc; }
-		canvas { cursor: crosshair;}
+		body { text-align: center; background-color:#113; color:#ddd; }
+		a { color:#ddd; }
+		canvas { cursor: crosshair; }
+		hr { margin:2em auto; }
+		td:first-child { text-align:right; }
+		td { padding: 0.2em 0.5em; }
+		select { font-size:150%; }
 	</style>
 	<script type="text/javascript" src="oz.js"></script>
 	<script type="text/javascript" src="canvas.js"></script>
@@ -14,83 +20,110 @@
 	<script type="text/javascript" src="evaluator.js"></script>
 </head>
 
-<body>
-	<h1>Web Worker Fractals</h1>
-	<div id="container"></div>
-	
-	<fieldset>
-		<legend>Math</legend>
-		Mode: <select id="mode">
-			<option selected="selected" value="0">Julia</option>
-			<option value="1">Mandelbrot</option>
-		</select>
-		Re(c): <input id="c_real" type="text" size="3" value="-0.8" />
-		Im(c): <input id="c_imag" type="text" size="3" value="0.156" />
-		Formula: <select id="formula">
-			<option selected="selected" value="0">z = z^2 + c</option>
-			<option value="1">z = z^3 + c</option>
-			<option value="2">z = z^4 + c</option>
-			<option value="3">z = conj(z)^2 + c</option>
-			<option value="4">burning ship</option>
-		</select>
-		<input type="button" onclick="redraw()" value="Redraw" />
-	</fieldset>
-	
-	<fieldset>
-		<legend>Other</legend>
-		<label>Use web workers:<input type="checkbox" id="threads" checked="checked" /></label>
+<body style="font-family: lato">
+	<div style="width:750px; margin:auto">
+		<h1>Web Worker Fractals</h1>
+		<div id="container"></div>
 
-		<input type="button" onclick="redraw()" value="Redraw" />
-	</fieldset>
+		<hr/>
 
-	<script type="text/javascript">
-		var f = null;
-		if (!window.Worker) {
-			OZ.$("threads").checked = false;
-			OZ.$("threads").disabled = true;
-		}
-	
-		var options = {};
+		<p>Click to zoom in; right-click to zoom out. Computation is parallelized via Web Workers (32 threads).</p>
 
-		function redraw() {
-			options.mode = parseInt(OZ.$("mode").value);
-			options.c = [parseFloat(OZ.$("c_real").value), parseFloat(OZ.$("c_imag").value)];
-			options.formula = parseInt(OZ.$("formula").value)
-			
-			options.threads = OZ.$("threads").checked;
-			
-			f = new Fractal(OZ.$("container"), options);
-			var canvas = f.getElement();
-			OZ.Event.add(canvas, "contextmenu", OZ.Event.prevent);
-			OZ.Event.add(canvas, "mouseup", click);
-		}
+		<hr/>
+
+		<table>
+			<tr>
+				<td>Type:</td>
+				<td>
+					<select id="mode" onchange="redraw()">
+						<option value="1" selected="selected">Mandelbrot set</option>
+						<option value="0">Julia set</option>
+					</select>
+				</td>
+				<td>
+					<span id="mode_mandelbrot">Set of complex constants for which the formula below remains bounded (after many iterations; starting from z=0)</span>
+					<span id="mode_julia">Set of complex numbers for which the formula below remains bounded (with a fixed c)</span>
+					<br/>
+					<p id="c">
+					Re(c): <input id="c_real" onchange="redraw()" type="text" size="5" value="-0.8" /><br/>
+					Im(c): <input id="c_imag" onchange="redraw()" type="text" size="5" value="0.156" />
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<td>Formula:</td>
+				<td><select id="formula" onchange="redraw()" >
+						<option selected="selected" value="0">z = z^2 + c</option>
+						<option value="1">z = z^3 + c</option>
+						<option value="2">z = z^4 + c</option>
+						<option value="3">z = conj(z)^2 + c</option>
+						<option value="4">burning ship</option>
+					</select>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label for="threads">Web&nbsp;Workers:</label></td>
+				<td><input type="checkbox" id="threads" checked="checked" onchange="redraw()" /></td>
+				<td></td>
+			</tr>
+		</table>
+
+
+		<script type="text/javascript">
+			var f = null;
+			if (!window.Worker) {
+				OZ.$("threads").checked = false;
+				OZ.$("threads").disabled = true;
+			}
 		
-		function click(e) {
-			var pos = OZ.DOM.pos(f.getElement());
-			var x = e.clientX - pos[0];
-			var y = e.clientY - pos[1];
-			
-			var o = f.getOptions();
-			x /= o.width;
-			y /= o.height;
-			
-			var dx = o.rangeX[1]-o.rangeX[0];
-			var dy = o.rangeY[1]-o.rangeY[0];
-			
-			x = o.rangeX[0] + dx*x;
-			y = o.rangeY[0] + dy*y;
-			
-			var multi = (e.button ? 2 : 0.5);
-			dx *= multi;
-			dy *= multi;
+			var options = {};
 
-			options.rangeX = [x-dx/2, x+dx/2];
-			options.rangeY = [y-dy/2, y+dy/2];
+			function redraw() {
+				var mode = parseInt(OZ.$("mode").value);
+				options.mode = mode;
+				options.c = [parseFloat(OZ.$("c_real").value), parseFloat(OZ.$("c_imag").value)];
+				options.formula = parseInt(OZ.$("formula").value)
+
+				OZ.$("mode_julia").style.display = (mode == Formula.JULIA ? "" : "none");
+				OZ.$("c").style.display = (mode == Formula.JULIA ? "" : "none");
+				OZ.$("mode_mandelbrot").style.display = (mode == Formula.MANDELBROT ? "" : "none");
+				
+				options.threads = OZ.$("threads").checked;
+				
+				f = new Fractal(OZ.$("container"), options);
+				var canvas = f.getElement();
+				OZ.Event.add(canvas, "contextmenu", OZ.Event.prevent);
+				OZ.Event.add(canvas, "mouseup", click);
+			}
+			
+			function click(e) {
+				var pos = OZ.DOM.pos(f.getElement());
+				var x = e.clientX - pos[0];
+				var y = e.clientY - pos[1];
+				
+				var o = f.getOptions();
+				x /= o.width;
+				y /= o.height;
+				
+				var dx = o.rangeX[1]-o.rangeX[0];
+				var dy = o.rangeY[1]-o.rangeY[0];
+				
+				x = o.rangeX[0] + dx*x;
+				y = o.rangeY[0] + dy*y;
+				
+				var multi = (e.button ? 2 : 0.5);
+				dx *= multi;
+				dy *= multi;
+
+				options.rangeX = [x-dx/2, x+dx/2];
+				options.rangeY = [y-dy/2, y+dy/2];
+				redraw();
+			}
+
 			redraw();
-		}
-
-		redraw();
-	</script>
-	<footer>Created by <a href="http://ondras.zarovi.cz/">Ondřej Žára</a>, with a lot of hints and optimizations by <a href="http://balazs.kutilovi.cz/">Balázs Kutil</a></footer>
+		</script>
+		<footer style="margin-top:5em; font-size:80%">Created by <a href="http://ondras.zarovi.cz/">Ondřej Žára</a>, with a lot of hints and optimizations by <a href="http://balazs.kutilovi.cz/">Balázs Kutil</a></footer>
+	</div>
 </body>
 </html>
