@@ -7,8 +7,8 @@ Fractal.prototype.init = function(container, options) {
 		maxIterations: 200,
 		mode: Formula.MANDELBROT,
 		formula: Formula.SQUARE,
-		width: 450,
-		height: 300,
+		width: 750,
+		height: 500,
 		rangeX: [-1.5, 1.5],
 		rangeY: [-1, 1],
 		threads: true

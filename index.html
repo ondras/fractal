@@ -1,7 +1,12 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!doctype html>
+<html>
 <head>
-	<title></title>
+	<meta charset="utf-8" />
+	<title>Web Worker Fractals</title>
+	<style>
+		body { text-align: center; background-color:#000; color:#ccc; }
+		canvas { cursor: crosshair;}
+	</style>
 	<script type="text/javascript" src="oz.js"></script>
 	<script type="text/javascript" src="canvas.js"></script>
 	<script type="text/javascript" src="formula.js"></script>
@@ -10,11 +15,8 @@
 </head>
 
 <body>
-	<h1>JSFE - JavaScript Fractal Explorer</h1>
-	<p>&copy; 2010 Ondrej Zara, optimizations by Balazs Kutil</p>
-	<p id="container">
-		<canvas id="canvas" width="400" height="300">...</canvas>
-	</p>
+	<h1>Web Worker Fractals</h1>
+	<div id="container"></div>
 	
 	<fieldset>
 		<legend>Math</legend>
@@ -89,5 +91,6 @@
 
 		redraw();
 	</script>
+	<footer>Created by <a href="http://ondras.zarovi.cz/">Ondřej Žára</a>, with a lot of hints and optimizations by <a href="http://balazs.kutilovi.cz/">Balázs Kutil</a></footer>
 </body>
 </html>

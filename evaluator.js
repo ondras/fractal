@@ -3,7 +3,8 @@ var Evaluator = function(done) {
 }
 
 Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
-	var result = new Array(2 + options.height * (maxX-minX));
+	var h = options.height;
+	var result = new Array(2 + 3 * h * (maxX-minX));
 	result[0] = minX;
 	result[1] = maxX;
 	
@@ -12,8 +13,6 @@ Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
 	var method = this._iterate;
 
 	var num = [0, 0];
-	var color = [0, 0, 0];
-	var h = this._options.height;
 	var index = 2;
 
 	switch (this._options.mode) {
@@ -36,7 +35,7 @@ Evaluator.prototype.compute = function(options, xvals, yvals, minX, maxX) {
 					c[0] = xvals[i];
 					c[1] = yvals[j];
 					
-					this._computeColor(method, num, result, index);
+					index = this._computeColor(method, num, result, index);
 				}
 			}
 		break;
