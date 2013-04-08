@@ -4,11 +4,11 @@ Fractal.prototype.init = function(container, options) {
 	this._options = {
 		c: [-0.8, 0.156],
 		threshold: 2,
-		maxIterations: 256,
+		maxIterations: 200,
 		mode: Formula.MANDELBROT,
 		formula: Formula.SQUARE,
-		width: 800,
-		height: 600,
+		width: 450,
+		height: 300,
 		rangeX: [-1.5, 1.5],
 		rangeY: [-1, 1],
 		threads: true
@@ -36,13 +36,11 @@ Fractal.prototype.draw = function() {
 
 	var dx = this._options.rangeX[1] - minX;
 	var dy = this._options.rangeY[1] - minY;
-	var stepX = dx/width;
-	var stepY = dy/height;
 
 	var xvals = [];
 	var yvals = [];
-	for (var i=0;i<width;i++) { xvals.push(minX + i*stepX); }
-	for (var j=0;j<height;j++) { yvals.push(minY + j*stepY); }
+	for (var i=0;i<width;i++) { xvals.push(minX + i*dx/width); }
+	for (var j=0;j<height;j++) { yvals.push(minY + j*dy/height); }
 	
 	var evcount = 16;
 	this._threads = evcount;
@@ -52,18 +50,20 @@ Fractal.prototype.draw = function() {
 		var max = Math.round(width/evcount*(i+1));
 		if (window.Worker && this._options.threads) {
 			var w = new Worker("worker.js");
-			w.onmessage = (function(event) {
-				this._evaluationDone(JSON.parse(event.data));
-				event.target.terminate();
-			}).bind(this);
+			w.onmessage = this._message.bind(this);
 			w.postMessage(JSON.stringify([this._options, xvals, yvals, min, max]));
-			
 		} else { 
 			var evaluator = new Evaluator(this._evaluationDone.bind(this));
 			evaluator.compute(this._options, xvals, yvals, min, max);
 		}
 	}
 }
+
+Fractal.prototype._message = function(e) {
+	this._evaluationDone(JSON.parse(e.data));
+	e.target.terminate();
+}
+
 Fractal.prototype._mergeResult = function(result) {
 	var minX = result.shift();
 	var maxX = result.shift();
