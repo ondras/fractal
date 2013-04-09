@@ -50,7 +50,7 @@ Evaluator.prototype._computeColor = function(method, num, result, index) {
 
 	while (num[0]*num[0]+num[1]*num[1] < t && i--) {
 		this._iterate(num, c);
-	}	
+	}
 	
 	if (i > 0) { /* outside */
 		i = this._options.maxIterations - i;

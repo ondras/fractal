@@ -42,7 +42,7 @@ Fractal.prototype.draw = function() {
 	for (var i=0;i<width;i++) { xvals.push(minX + i*dx/width); }
 	for (var j=0;j<height;j++) { yvals.push(minY + j*dy/height); }
 	
-	var evcount = 32;
+	var evcount = 8;
 	this._threads = evcount;
 	
 	for (var i=0;i<evcount;i++) {
