@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<link href="http://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css" />
+	<link href="http://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" />
 	<title>Web Worker Fractals</title>
 	<style>
 		body { text-align: center; background-color:#113; color:#ddd; }
@@ -12,6 +12,10 @@
 		td:first-child { text-align:right; }
 		td { padding: 0.2em 0.5em; }
 		select { font-size:150%; }
+		main {
+			max-width: 1200px;
+			margin: auto;
+		}
 	</style>
 	<script type="text/javascript" src="oz.js"></script>
 	<script type="text/javascript" src="canvas.js"></script>
@@ -21,7 +25,7 @@
 </head>
 
 <body style="font-family: lato">
-	<div style="width:750px; margin:auto">
+	<main>
 		<h1>Web Worker Fractals</h1>
 		<div id="container"></div>
 
@@ -76,7 +80,7 @@
 				OZ.$("threads").checked = false;
 				OZ.$("threads").disabled = true;
 			}
-		
+
 			var options = {};
 
 			function redraw() {
@@ -88,30 +92,32 @@
 				OZ.$("mode_julia").style.display = (mode == Formula.JULIA ? "" : "none");
 				OZ.$("c").style.display = (mode == Formula.JULIA ? "" : "none");
 				OZ.$("mode_mandelbrot").style.display = (mode == Formula.MANDELBROT ? "" : "none");
-				
+
 				options.threads = OZ.$("threads").checked;
-				
+				options.width = document.querySelector("main").offsetWidth;
+				options.height = options.width * 0.75;
+
 				f = new Fractal(OZ.$("container"), options);
 				var canvas = f.getElement();
 				OZ.Event.add(canvas, "contextmenu", OZ.Event.prevent);
 				OZ.Event.add(canvas, "mouseup", click);
 			}
-			
+
 			function click(e) {
 				var pos = OZ.DOM.pos(f.getElement());
 				var x = e.clientX - pos[0];
 				var y = e.clientY - pos[1];
-				
+
 				var o = f.getOptions();
 				x /= o.width;
 				y /= o.height;
-				
+
 				var dx = o.rangeX[1]-o.rangeX[0];
 				var dy = o.rangeY[1]-o.rangeY[0];
-				
+
 				x = o.rangeX[0] + dx*x;
 				y = o.rangeY[0] + dy*y;
-				
+
 				var multi = (e.button ? 2 : 0.5);
 				dx *= multi;
 				dy *= multi;
