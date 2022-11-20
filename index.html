@@ -75,6 +75,8 @@
 
 
 		<script type="text/javascript">
+			const DPR = (window.devicePixelRatio || 1);
+
 			var f = null;
 			if (!window.Worker) {
 				OZ.$("threads").checked = false;
@@ -94,23 +96,30 @@
 				OZ.$("mode_mandelbrot").style.display = (mode == Formula.MANDELBROT ? "" : "none");
 
 				options.threads = OZ.$("threads").checked;
-				options.width = document.querySelector("main").offsetWidth;
-				options.height = options.width * 0.75;
+
+				let width = document.querySelector("main").offsetWidth;
+				let height = Math.round(width * .75);
+				options.width = Math.round(width * DPR);
+				options.height = Math.round(height * DPR);
 
 				f = new Fractal(OZ.$("container"), options);
 				var canvas = f.getElement();
+				canvas.style.width = `${width}px`;
+				canvas.style.height = `${height}px`;
 				OZ.Event.add(canvas, "contextmenu", OZ.Event.prevent);
 				OZ.Event.add(canvas, "mouseup", click);
 			}
 
 			function click(e) {
-				var pos = OZ.DOM.pos(f.getElement());
-				var x = e.clientX - pos[0];
-				var y = e.clientY - pos[1];
+				let rect = f.getElement().getBoundingClientRect();
+				var x = e.clientX - rect.left;
+				var y = e.clientY - rect.top;
 
 				var o = f.getOptions();
 				x /= o.width;
 				y /= o.height;
+				x *= DPR;
+				y *= DPR;
 
 				var dx = o.rangeX[1]-o.rangeX[0];
 				var dy = o.rangeY[1]-o.rangeY[0];

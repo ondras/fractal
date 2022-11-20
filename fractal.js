@@ -13,7 +13,7 @@ Fractal.prototype.init = function(container, options) {
 		rangeY: [-1, 1],
 		threads: true
 	}
-	
+
 	for (var p in options) { this._options[p] = options[p]; }
 
 	this._time1 = null;
@@ -23,7 +23,7 @@ Fractal.prototype.init = function(container, options) {
 	OZ.DOM.clear(container);
 	this._canvas = new Canvas(this._options.width, this._options.height);
 	container.appendChild(this._canvas.getElement());
-	
+
 	this.draw();
 }
 
@@ -41,10 +41,10 @@ Fractal.prototype.draw = function() {
 	var yvals = [];
 	for (var i=0;i<width;i++) { xvals.push(minX + i*dx/width); }
 	for (var j=0;j<height;j++) { yvals.push(minY + j*dy/height); }
-	
+
 	var evcount = 8;
 	this._threads = evcount;
-	
+
 	for (var i=0;i<evcount;i++) {
 		var min = Math.round(width/evcount*i);
 		var max = Math.round(width/evcount*(i+1));
@@ -52,7 +52,7 @@ Fractal.prototype.draw = function() {
 			var w = new Worker("worker.js");
 			w.onmessage = this._message.bind(this);
 			w.postMessage(JSON.stringify([this._options, xvals, yvals, min, max]));
-		} else { 
+		} else {
 			var evaluator = new Evaluator(this._evaluationDone.bind(this));
 			evaluator.compute(this._options, xvals, yvals, min, max);
 		}
@@ -73,7 +73,7 @@ Fractal.prototype._mergeResult = function(result) {
 Fractal.prototype._evaluationDone = function(result) {
 	this._mergeResult(result);
 	this._threads--;
-	
+
 	if (!this._threads) {
 		this._time2 = new Date();
 		var diff = this._time2.getTime() - this._time1.getTime();
